@@ -1,4 +1,3 @@
-import React from 'react';
 import Layout from '@/app/components/Layout';
 import { useProfessorRequests, useProfessorBookings } from '../hooks/useProfessorRequests';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
@@ -10,7 +9,7 @@ import { SkeletonList } from '@/app/components/ui/loading';
 
 export default function ProfessorDashboard() {
   const navigate = useNavigate();
-  const { data: requests, isLoading: requestsLoading } = useProfessorRequests();
+  const { data: requests } = useProfessorRequests();
   const { data: bookings, isLoading: bookingsLoading } = useProfessorBookings();
 
   const pendingCount = requests?.filter((r) => r.status === 'pending').length || 0;

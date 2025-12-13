@@ -1,4 +1,4 @@
-import { Calendar, Clock } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { Card, CardContent } from "./card";
 
 interface EmptyStateProps {

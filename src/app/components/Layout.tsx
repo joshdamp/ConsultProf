@@ -11,9 +11,8 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/app/components/ui/dropdown-menu';
-import { GraduationCap, LogOut, User, Menu, X } from 'lucide-react';
+import { GraduationCap, LogOut, Menu, X } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
-import { cn } from '@/app/lib/utils';
 
 interface NavLink {
   to: string;

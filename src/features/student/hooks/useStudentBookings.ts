@@ -1,15 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/app/lib/supabase';
-import { Booking } from '@/app/types/database';
+import { Booking, Profile } from '@/app/types/database';
 import { useAuth } from '@/app/Auth/AuthContext';
 import { useToast } from '@/app/hooks/use-toast';
+
+type BookingWithProfessor = Booking & { professor?: Profile };
 
 export function useStudentBookings() {
   const { profile } = useAuth();
 
-  return useQuery({
+  return useQuery<BookingWithProfessor[]>({
     queryKey: ['student-bookings', profile?.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<BookingWithProfessor[]> => {
       // Get bookings
       const { data: bookings, error: bookingsError } = await supabase
         .from('bookings')
@@ -22,7 +24,7 @@ export function useStudentBookings() {
       if (!bookings || bookings.length === 0) return [];
 
       // Get professor profiles
-      const professorIds = [...new Set(bookings.map(b => b.professor_id))];
+      const professorIds = [...new Set((bookings || []).map((b: any) => b.professor_id))];
       const { data: professors, error: profError } = await supabase
         .from('profiles')
         .select('*')
@@ -31,10 +33,10 @@ export function useStudentBookings() {
       if (profError) throw profError;
 
       // Merge the data
-      return bookings.map(booking => ({
+      return (bookings || []).map((booking: any) => ({
         ...booking,
-        professor: professors?.find(p => p.id === booking.professor_id)
-      })) as Booking[];
+        professor: (professors || []).find((p: any) => p.id === booking.professor_id)
+      })) as BookingWithProfessor[];
     },
     enabled: !!profile?.id,
   });
@@ -49,13 +51,20 @@ export function useCreateBooking() {
     mutationFn: async (
       booking: Omit<Booking, 'id' | 'created_at' | 'updated_at' | 'student_id' | 'status'>
     ) => {
+      const insertData = {
+        professor_id: booking.professor_id,
+        date: booking.date,
+        start_time: booking.start_time,
+        end_time: booking.end_time,
+        mode: booking.mode,
+        topic: booking.topic,
+        student_id: profile?.id!,
+        status: 'pending' as const,
+      };
+      
       const { data, error } = await supabase
         .from('bookings')
-        .insert({
-          ...booking,
-          student_id: profile?.id!,
-          status: 'pending',
-        })
+        .insert(insertData as any)
         .select()
         .single();
 
@@ -85,9 +94,10 @@ export function useCancelBooking() {
 
   return useMutation({
     mutationFn: async (bookingId: string) => {
+      const updateData = { status: 'cancelled' as const, updated_at: new Date().toISOString() };
       const { error } = await supabase
         .from('bookings')
-        .update({ status: 'cancelled', updated_at: new Date().toISOString() })
+        .update(updateData as any)
         .eq('id', bookingId);
 
       if (error) throw error;

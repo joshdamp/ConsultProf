@@ -1,4 +1,3 @@
-import React from 'react';
 import Layout from '@/app/components/Layout';
 import { GridScheduleEditor } from '../components/GridScheduleEditor';
 import { useProfessorSchedule } from '../hooks/useProfessorSchedule';
@@ -28,11 +27,11 @@ export default function ProfessorSchedule() {
 
         {isLoading ? (
           <div className="flex justify-center p-12">
-            <LoadingSpinner size="lg" />
+            <LoadingSpinner size={48} />
           </div>
         ) : error ? (
           <EmptyState
-            icon={Calendar}
+            icon={<Calendar className="h-12 w-12" />}
             title="Error loading schedule"
             description="There was a problem loading your schedule. Please try again."
           />

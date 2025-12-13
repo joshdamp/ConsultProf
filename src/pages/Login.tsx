@@ -36,11 +36,13 @@ export default function Login() {
       if (error) throw error;
 
       // Fetch profile to determine role
-      const { data: profile } = await supabase
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('role')
         .eq('id', authData.user.id)
         .single();
+      
+      const profile = profileData as { role: 'student' | 'professor' } | null;
 
       toast({
         title: 'Welcome back!',

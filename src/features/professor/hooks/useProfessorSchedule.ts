@@ -2,7 +2,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/app/lib/supabase';
 import { ProfessorSchedule } from '@/app/types/database';
 import { useAuth } from '@/app/Auth/AuthContext';
-import { useToast } from '@/app/hooks/use-toast';
 
 export function useProfessorSchedule() {
   const { profile } = useAuth();
@@ -27,16 +26,22 @@ export function useProfessorSchedule() {
 export function useAddSchedule() {
   const queryClient = useQueryClient();
   const { profile } = useAuth();
-  const { toast } = useToast();
 
   return useMutation({
     mutationFn: async (schedule: Omit<ProfessorSchedule, 'id' | 'created_at' | 'professor_id'>) => {
+      const insertData = {
+        professor_id: profile?.id!,
+        weekday: schedule.weekday,
+        start_time: schedule.start_time,
+        end_time: schedule.end_time,
+        type: schedule.type,
+        note: schedule.note,
+        visible_to_students: schedule.visible_to_students,
+      } as const;
+      
       const { data, error } = await supabase
         .from('professor_schedules')
-        .insert({
-          ...schedule,
-          professor_id: profile?.id!,
-        })
+        .insert(insertData as any)
         .select()
         .single();
 
@@ -58,14 +63,15 @@ export function useAddSchedule() {
 
 export function useUpdateSchedule() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const { profile } = useAuth();
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<ProfessorSchedule> & { id: string }) => {
+      const { professor_id, created_at, ...validUpdates } = updates as any;
+      
       const { data, error } = await supabase
         .from('professor_schedules')
-        .update(updates)
+        .update(validUpdates as any)
         .eq('id', id)
         .select()
         .single();
@@ -76,24 +82,16 @@ export function useUpdateSchedule() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['professor-schedule'] });
       queryClient.invalidateQueries({ queryKey: ['professor-schedule', profile?.id] });
-      toast({
-        title: 'Schedule updated',
-        description: 'Your schedule has been successfully updated.',
-      });
     },
     onError: (error: any) => {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: error.message || 'Failed to update schedule',
-      });
+      console.error('Failed to update schedule:', error);
+      throw error;
     },
   });
 }
 
 export function useDeleteSchedule() {
   const queryClient = useQueryClient();
-  const { toast } = useToast();
   const { profile } = useAuth();
 
   return useMutation({

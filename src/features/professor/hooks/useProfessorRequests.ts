@@ -32,9 +32,14 @@ export function useUpdateBookingStatus() {
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: BookingStatus }) => {
+      const updateData = {
+        status,
+        updated_at: new Date().toISOString()
+      };
+      
       const { data, error } = await supabase
         .from('bookings')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update(updateData as any)
         .eq('id', id)
         .select()
         .single();

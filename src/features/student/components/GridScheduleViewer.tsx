@@ -1,12 +1,17 @@
-import React from 'react';
 import { Card, CardContent } from '@/app/components/ui/card';
 import { TIME_SLOT_PAIRS, WEEKDAYS } from '@/app/lib/date-utils';
 import { ProfessorSchedule } from '@/app/types/database';
-import { Clock } from 'lucide-react';
+
+interface SlotData {
+  weekday: number;
+  start_time: string;
+  end_time: string;
+  slotKey: string;
+}
 
 interface GridScheduleViewerProps {
   schedules: ProfessorSchedule[];
-  onSlotSelect?: (schedule: ProfessorSchedule) => void;
+  onSlotSelect?: (slotData: SlotData) => void;
   selectedSlot?: string;
 }
 
@@ -20,7 +25,7 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
     scheduleMap.set(key, schedule);
   });
 
-  const getScheduleColor = (type: string) => {
+  const getScheduleColor = () => {
     // Classes are occupied (not bookable)
     return 'bg-red-100 text-red-700 border-red-200';
   };
@@ -43,7 +48,7 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
           <span>Available for Booking</span>
         </div>
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4" />
+          <span className="text-lg">👆</span>
           <span>Click green slots to book</span>
         </div>
       </div>
@@ -85,13 +90,13 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
                             start_time: slot.start,
                             end_time: slot.end,
                             slotKey
-                          } as any)}
+                          })}
                         >
                           {schedule ? (
                             <div 
                               className={`
                                 p-2 rounded text-xs border transition-all
-                                ${getScheduleColor(schedule.type)}
+                                ${getScheduleColor()}
                                 cursor-not-allowed
                               `}
                             >

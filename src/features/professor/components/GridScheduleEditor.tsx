@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { TIME_SLOT_PAIRS, WEEKDAYS } from '@/app/lib/date-utils';
@@ -82,7 +81,7 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
     }
   };
 
-  const getScheduleColor = (type: string) => {
+  const getScheduleColor = () => {
     // Only classes are marked (occupied time)
     return 'bg-red-100 text-red-800 border-red-300';
   };
@@ -145,7 +144,7 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
                           onClick={() => !schedule && handleCellClick(weekdayIndex, slotIndex)}
                         >
                           {schedule ? (
-                            <div className={`relative p-2 rounded text-xs ${getScheduleColor(schedule.type)} border`}>
+                            <div className={`relative p-2 rounded text-xs ${getScheduleColor()} border`}>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();

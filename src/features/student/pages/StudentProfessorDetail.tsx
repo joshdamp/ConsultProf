@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '@/app/components/Layout';
 import { useProfessor } from '../hooks/useProfessors';
@@ -8,8 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app
 import { Button } from '@/app/components/ui/button';
 import { LoadingSpinner } from '@/app/components/ui/loading';
 import { Avatar, AvatarFallback } from '@/app/components/ui/avatar';
-import { MapPin, Mail, Calendar, ArrowLeft } from 'lucide-react';
-import { ProfessorSchedule } from '@/app/types/database';
+import { MapPin, Mail, ArrowLeft } from 'lucide-react';
 
 export default function StudentProfessorDetail() {
   const { id } = useParams<{ id: string }>();

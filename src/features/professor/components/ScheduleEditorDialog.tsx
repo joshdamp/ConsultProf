@@ -1,10 +1,8 @@
-import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { scheduleSchema, ScheduleFormData } from '@/app/lib/validations';
 import { TIME_SLOTS, WEEKDAYS } from '@/app/lib/date-utils';
 import { Button } from '@/app/components/ui/button';
-import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { Textarea } from '@/app/components/ui/textarea';
@@ -37,7 +35,15 @@ export function ScheduleEditorDialog({ open, onOpenChange }: ScheduleEditorDialo
   const type = watch('type');
 
   const onSubmit = async (data: ScheduleFormData) => {
-    await addSchedule.mutateAsync(data);
+    const scheduleData = {
+      weekday: data.weekday,
+      start_time: data.start_time,
+      end_time: data.end_time,
+      type: data.type,
+      note: data.note ? data.note : null,
+      visible_to_students: data.visible_to_students,
+    };
+    await addSchedule.mutateAsync(scheduleData);
     reset();
     onOpenChange(false);
   };
