@@ -1,8 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/app/lib/supabase';
-import { Booking, BookingStatus } from '@/app/types/database';
+import { Booking, BookingStatus, Profile } from '@/app/types/database';
 import { useAuth } from '@/app/Auth/AuthContext';
 import { useToast } from '@/app/hooks/use-toast';
+
+type BookingWithStudent = Booking & {
+  student: Profile;
+};
 
 export function useProfessorRequests() {
   const { profile } = useAuth();
@@ -20,7 +24,7 @@ export function useProfessorRequests() {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return data as Booking[];
+      return data as BookingWithStudent[];
     },
     enabled: !!profile?.id,
   });
@@ -32,11 +36,12 @@ export function useUpdateBookingStatus() {
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: BookingStatus }) => {
-      const updateData = {
+      const updateData: { status: BookingStatus; updated_at: string } = {
         status,
         updated_at: new Date().toISOString()
       };
       
+      // @ts-ignore - Supabase types are overly strict
       const { data, error } = await supabase
         .from('bookings')
         .update(updateData as any)
@@ -45,7 +50,7 @@ export function useUpdateBookingStatus() {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Booking;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['professor-requests'] });
@@ -85,7 +90,7 @@ export function useProfessorBookings() {
         .order('start_time', { ascending: true });
 
       if (error) throw error;
-      return data as Booking[];
+      return data as BookingWithStudent[];
     },
     enabled: !!profile?.id,
   });

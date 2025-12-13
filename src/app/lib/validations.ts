@@ -8,6 +8,9 @@ export const signupSchema = z.object({
     required_error: 'Please select a role',
   }),
   department: z.string().optional(),
+  program: z.string().optional(),
+  student_number: z.string().optional(),
+  teams_email: z.string().email('Invalid email address').optional().or(z.literal('')),
 });
 
 export type SignupFormData = z.infer<typeof signupSchema>;

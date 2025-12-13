@@ -108,6 +108,12 @@ export default function StudentProfessorDetail() {
                 <span>{professor.profile.email}</span>
               </div>
             )}
+            {professor.profile.teams_email && (
+              <div className="flex items-center gap-2 text-sm">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs bg-primary/10 px-2 py-1 rounded">Teams: {professor.profile.teams_email}</span>
+              </div>
+            )}
             {professor.bio && (
               <div className="pt-3 border-t">
                 <p className="text-sm text-muted-foreground">{professor.bio}</p>

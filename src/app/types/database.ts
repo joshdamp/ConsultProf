@@ -6,6 +6,9 @@ export interface Profile {
   full_name: string;
   email: string;
   department: string | null;
+  program: string | null;
+  student_number: string | null;
+  teams_email: string | null;
   created_at: string;
 }
 

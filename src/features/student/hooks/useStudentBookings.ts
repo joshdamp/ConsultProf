@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/app/lib/supabase';
-import { Booking, Profile } from '@/app/types/database';
+import { Booking, Profile, BookingStatus } from '@/app/types/database';
 import { useAuth } from '@/app/Auth/AuthContext';
 import { useToast } from '@/app/hooks/use-toast';
 
@@ -59,7 +59,7 @@ export function useCreateBooking() {
         mode: booking.mode,
         topic: booking.topic,
         student_id: profile?.id!,
-        status: 'pending' as const,
+        status: 'pending' as BookingStatus,
       };
       
       const { data, error } = await supabase
@@ -69,7 +69,7 @@ export function useCreateBooking() {
         .single();
 
       if (error) throw error;
-      return data;
+      return data as Booking;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-bookings'] });
@@ -94,7 +94,11 @@ export function useCancelBooking() {
 
   return useMutation({
     mutationFn: async (bookingId: string) => {
-      const updateData = { status: 'cancelled' as const, updated_at: new Date().toISOString() };
+      const updateData: { status: 'cancelled'; updated_at: string } = { 
+        status: 'cancelled', 
+        updated_at: new Date().toISOString() 
+      };
+      // @ts-ignore - Supabase types are overly strict
       const { error } = await supabase
         .from('bookings')
         .update(updateData as any)

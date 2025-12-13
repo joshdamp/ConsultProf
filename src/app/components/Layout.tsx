@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/Auth/AuthContext';
 import { Button } from '@/app/components/ui/button';
@@ -11,7 +10,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/app/components/ui/dropdown-menu';
-import { GraduationCap, LogOut, Menu, X } from 'lucide-react';
+import { GraduationCap, LogOut, Menu, X, User as UserIcon } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
 
 interface NavLink {
@@ -91,6 +90,10 @@ export default function Layout({ children, navLinks }: LayoutProps) {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate(profile?.role === 'professor' ? '/professor/profile' : '/student/profile')}>
+                    <UserIcon className="mr-2 h-4 w-4" />
+                    <span>My Profile</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
@@ -156,17 +159,30 @@ export default function Layout({ children, navLinks }: LayoutProps) {
               ))}
             </nav>
 
-            <Button 
-              variant="outline" 
-              className="w-full justify-start" 
-              onClick={() => {
-                closeMobileMenu();
-                handleSignOut();
-              }}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Log out
-            </Button>
+            <div className="pt-4 border-t space-y-2">
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start" 
+                onClick={() => {
+                  closeMobileMenu();
+                  navigate(profile?.role === 'professor' ? '/professor/profile' : '/student/profile');
+                }}
+              >
+                <UserIcon className="mr-2 h-4 w-4" />
+                My Profile
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start" 
+                onClick={() => {
+                  closeMobileMenu();
+                  handleSignOut();
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </Button>
+            </div>
           </div>
         </div>
       )}

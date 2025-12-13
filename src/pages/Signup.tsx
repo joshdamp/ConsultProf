@@ -43,6 +43,9 @@ export default function Signup() {
             role: data.role,
             full_name: data.full_name,
             department: data.department || null,
+            program: data.program || null,
+            student_number: data.student_number || null,
+            teams_email: data.teams_email || null,
           },
         },
       });
@@ -153,6 +156,51 @@ export default function Signup() {
                 disabled={isLoading}
               />
             </div>
+            
+            {selectedRole === 'student' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="student_number">Student Number</Label>
+                  <Input
+                    id="student_number"
+                    placeholder="2021-12345"
+                    {...register('student_number')}
+                    disabled={isLoading}
+                  />
+                  {errors.student_number && (
+                    <p className="text-sm text-destructive">{errors.student_number.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="program">Program (Optional)</Label>
+                  <Input
+                    id="program"
+                    placeholder="BS Computer Science"
+                    {...register('program')}
+                    disabled={isLoading}
+                  />
+                  {errors.program && (
+                    <p className="text-sm text-destructive">{errors.program.message}</p>
+                  )}
+                </div>
+              </>
+            )}
+            
+            {selectedRole === 'professor' && (
+              <div className="space-y-2">
+                <Label htmlFor="teams_email">Teams Email</Label>
+                <Input
+                  id="teams_email"
+                  type="email"
+                  placeholder="professor@teams.university.edu"
+                  {...register('teams_email')}
+                  disabled={isLoading}
+                />
+                {errors.teams_email && (
+                  <p className="text-sm text-destructive">{errors.teams_email.message}</p>
+                )}
+              </div>
+            )}
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
             <Button type="submit" className="w-full" disabled={isLoading}>

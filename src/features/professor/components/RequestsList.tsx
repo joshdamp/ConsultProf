@@ -1,11 +1,10 @@
-import React from 'react';
 import { useProfessorRequests, useUpdateBookingStatus } from '../hooks/useProfessorRequests';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { Button } from '@/app/components/ui/button';
 import { SkeletonList } from '@/app/components/ui/loading';
 import { EmptyState } from '@/app/components/ui/empty-state';
 import { formatDate, formatTime } from '@/app/lib/date-utils';
-import { Check, X, Calendar, Clock, User, MessageSquare } from 'lucide-react';
+import { Check, X, Calendar, Clock, User, MessageSquare, Mail, Hash, Building2, GraduationCap } from 'lucide-react';
 import { Booking } from '@/app/types/database';
 import { Badge } from '@/app/components/ui/badge';
 
@@ -93,15 +92,37 @@ function RequestCard({ request, onAccept, onDecline, isUpdating }: RequestCardPr
     <Card>
       <CardHeader>
         <div className="flex items-start justify-between gap-4">
-          <div className="space-y-1 flex-1">
+          <div className="space-y-2 flex-1">
             <CardTitle className="text-base flex items-center gap-2">
               <User className="h-4 w-4" />
-              {request.student?.full_name}
+              {request.student?.full_name || 'Unknown Student'}
             </CardTitle>
-            <CardDescription className="text-sm">
-              {request.student?.department && `${request.student.department} • `}
-              {request.student?.email}
-            </CardDescription>
+            <div className="space-y-1 text-sm text-muted-foreground">
+              {request.student?.student_number && (
+                <div className="flex items-center gap-2">
+                  <Hash className="h-3.5 w-3.5" />
+                  <span>{request.student.student_number}</span>
+                </div>
+              )}
+              {request.student?.email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="h-3.5 w-3.5" />
+                  <span>{request.student.email}</span>
+                </div>
+              )}
+              {request.student?.department && (
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span>{request.student.department}</span>
+                </div>
+              )}
+              {request.student?.program && (
+                <div className="flex items-center gap-2">
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  <span>{request.student.program}</span>
+                </div>
+              )}
+            </div>
           </div>
           <Badge className={statusColors[request.status]}>
             {request.status}

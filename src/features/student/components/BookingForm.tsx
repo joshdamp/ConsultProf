@@ -15,9 +15,14 @@ import { format } from 'date-fns';
 interface BookingFormProps {
   professorId: string;
   professorName: string;
+  selectedSlot?: {
+    weekday: number;
+    start_time: string;
+    end_time: string;
+  };
 }
 
-export function BookingForm({ professorId, professorName }: BookingFormProps) {
+export function BookingForm({ professorId, professorName, selectedSlot }: BookingFormProps) {
   const navigate = useNavigate();
   const createBooking = useCreateBooking();
   const {
@@ -28,6 +33,10 @@ export function BookingForm({ professorId, professorName }: BookingFormProps) {
     watch,
   } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
+    defaultValues: selectedSlot ? {
+      start_time: selectedSlot.start_time,
+      end_time: selectedSlot.end_time,
+    } : undefined,
   });
 
   const mode = watch('mode');
@@ -47,13 +56,21 @@ export function BookingForm({ professorId, professorName }: BookingFormProps) {
   // Generate date options (next 14 weekdays)
   const dateOptions: string[] = [];
   const today = new Date();
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 90; i++) {
     const date = new Date(today);
     date.setDate(date.getDate() + i);
     const dayOfWeek = date.getDay();
-    // Only include Mon-Fri (1-5)
-    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-      dateOptions.push(format(date, 'yyyy-MM-dd'));
+    
+    // If a slot is pre-selected, only show dates for that weekday
+    if (selectedSlot) {
+      if (dayOfWeek === selectedSlot.weekday) {
+        dateOptions.push(format(date, 'yyyy-MM-dd'));
+      }
+    } else {
+      // Otherwise, only include Mon-Fri (1-5)
+      if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+        dateOptions.push(format(date, 'yyyy-MM-dd'));
+      }
     }
     if (dateOptions.length >= 14) break;
   }
@@ -68,8 +85,19 @@ export function BookingForm({ professorId, professorName }: BookingFormProps) {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          {selectedSlot && (
+            <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-4">
+              <p className="text-sm font-medium text-primary">
+                📅 Pre-selected Time Slot
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {selectedSlot.start_time} - {selectedSlot.end_time}
+              </p>
+            </div>
+          )}
+
           <div className="space-y-2">
-            <Label htmlFor="date">Date</Label>
+            <Label htmlFor="date">Date {selectedSlot && <span className="text-xs text-muted-foreground">(Only showing {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][selectedSlot.weekday]}s)</span>}</Label>
             <Select onValueChange={(value) => setValue('date', value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select date" />
@@ -90,7 +118,11 @@ export function BookingForm({ professorId, professorName }: BookingFormProps) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Start Time</Label>
-              <Select onValueChange={(value) => setValue('start_time', value)}>
+              <Select 
+                onValueChange={(value) => setValue('start_time', value)} 
+                defaultValue={selectedSlot?.start_time}
+                disabled={!!selectedSlot}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Start" />
                 </SelectTrigger>
@@ -109,7 +141,11 @@ export function BookingForm({ professorId, professorName }: BookingFormProps) {
 
             <div className="space-y-2">
               <Label>End Time</Label>
-              <Select onValueChange={(value) => setValue('end_time', value)}>
+              <Select 
+                onValueChange={(value) => setValue('end_time', value)}
+                defaultValue={selectedSlot?.end_time}
+                disabled={!!selectedSlot}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="End" />
                 </SelectTrigger>

@@ -1,4 +1,3 @@
-import React from 'react';
 import Layout from '@/app/components/Layout';
 import { useProfessorBookings } from '../hooks/useProfessorRequests';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
@@ -66,14 +65,25 @@ export default function ProfessorBookings() {
                   </div>
 
                   {booking.topic && (
-                    <div className="pt-2 border-t">
+                    <div>
                       <p className="text-sm font-medium mb-1">Topic:</p>
                       <p className="text-sm text-muted-foreground">{booking.topic}</p>
                     </div>
                   )}
 
-                  <div className="text-xs text-muted-foreground">
-                    Student: {booking.student?.email}
+                  <div className="text-sm text-muted-foreground space-y-1.5 border-t pt-3 mt-3">
+                    <div className="font-medium text-foreground mb-2">Student Information:</div>
+                    <div>Name: {booking.student?.full_name || 'Unknown'}</div>
+                    {booking.student?.student_number && (
+                      <div>Student #: {booking.student.student_number}</div>
+                    )}
+                    <div>Email: {booking.student?.email}</div>
+                    {booking.student?.department && (
+                      <div>Department: {booking.student.department}</div>
+                    )}
+                    {booking.student?.program && (
+                      <div>Program: {booking.student.program}</div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

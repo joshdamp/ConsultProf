@@ -1,5 +1,4 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import Layout from '@/app/components/Layout';
 import { useProfessor } from '../hooks/useProfessors';
 import { BookingForm } from '../components/BookingForm';
@@ -10,7 +9,11 @@ import { ArrowLeft } from 'lucide-react';
 export default function StudentBookingPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: professor, isLoading } = useProfessor(id!);
+  
+  // Get the selected slot from navigation state
+  const selectedSlot = location.state?.selectedSlot as { weekday: number; start_time: string; end_time: string } | undefined;
 
   const navLinks = [
     { to: '/student/dashboard', label: 'Dashboard' },
@@ -60,6 +63,7 @@ export default function StudentBookingPage() {
         <BookingForm 
           professorId={id!} 
           professorName={professor.profile.full_name}
+          selectedSlot={selectedSlot}
         />
       </div>
     </Layout>
