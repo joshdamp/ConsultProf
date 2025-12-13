@@ -1,4 +1,3 @@
-import React from 'react';
 import Layout from '@/app/components/Layout';
 import { useStudentBookings } from '../hooks/useStudentBookings';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/app/components/ui/card';

@@ -1,4 +1,3 @@
-import React from 'react';
 import Layout from '@/app/components/Layout';
 import { RequestsList } from '../components/RequestsList';
 

@@ -10,8 +10,17 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/app/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/app/components/ui/dialog';
 import { GraduationCap, LogOut, Menu, X, User as UserIcon } from 'lucide-react';
 import { useUIStore } from '@/stores/ui-store';
+import { useState } from 'react';
 
 interface NavLink {
   to: string;
@@ -27,10 +36,16 @@ export default function Layout({ children, navLinks }: LayoutProps) {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useUIStore();
+  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   const handleSignOut = async () => {
+    setShowSignOutDialog(false);
     await signOut();
     navigate('/login');
+  };
+
+  const getDashboardPath = () => {
+    return profile?.role === 'professor' ? '/professor/dashboard' : '/student/dashboard';
   };
 
   const getInitials = (name: string) => {
@@ -48,7 +63,7 @@ export default function Layout({ children, navLinks }: LayoutProps) {
       <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2">
+            <Link to={getDashboardPath()} className="flex items-center gap-2">
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-primary-foreground" />
               </div>
@@ -94,7 +109,7 @@ export default function Layout({ children, navLinks }: LayoutProps) {
                     <UserIcon className="mr-2 h-4 w-4" />
                     <span>My Profile</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleSignOut}>
+                  <DropdownMenuItem onClick={() => setShowSignOutDialog(true)}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Log out</span>
                   </DropdownMenuItem>
@@ -123,7 +138,7 @@ export default function Layout({ children, navLinks }: LayoutProps) {
         >
           <div className="container px-4 py-6 space-y-6">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
+              <Link to={getDashboardPath()} className="flex items-center gap-2" onClick={closeMobileMenu}>
                 <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                   <GraduationCap className="w-5 h-5 text-primary-foreground" />
                 </div>
@@ -176,7 +191,7 @@ export default function Layout({ children, navLinks }: LayoutProps) {
                 className="w-full justify-start" 
                 onClick={() => {
                   closeMobileMenu();
-                  handleSignOut();
+                  setShowSignOutDialog(true);
                 }}
               >
                 <LogOut className="mr-2 h-4 w-4" />
@@ -186,6 +201,26 @@ export default function Layout({ children, navLinks }: LayoutProps) {
           </div>
         </div>
       )}
+
+      {/* Sign Out Confirmation Dialog */}
+      <Dialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign Out</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to sign out? You'll need to log in again to access your account.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSignOutDialog(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleSignOut}>
+              Sign Out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Main Content */}
       <main className="container px-4 py-6 md:py-8">

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useProfessorPublicSchedule } from '../hooks/useProfessorSchedule';
 import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card';
 import { SkeletonList } from '@/app/components/ui/loading';
