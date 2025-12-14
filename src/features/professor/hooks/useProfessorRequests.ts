@@ -37,11 +37,15 @@ export function useUpdateBookingStatus() {
   const { toast } = useToast();
 
   return useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: BookingStatus }) => {
-      const updateData: { status: BookingStatus; updated_at: string } = {
+    mutationFn: async ({ id, status, notes }: { id: string; status: BookingStatus; notes?: string }) => {
+      const updateData: { status: BookingStatus; professor_notes?: string; updated_at: string } = {
         status,
         updated_at: new Date().toISOString()
       };
+      
+      if (notes !== undefined) {
+        updateData.professor_notes = notes;
+      }
       
       // @ts-ignore - Supabase types are overly strict
       const { data, error } = await supabase

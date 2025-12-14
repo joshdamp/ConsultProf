@@ -48,6 +48,7 @@ export interface Booking {
   mode: BookingMode;
   topic: string | null;
   status: BookingStatus;
+  professor_notes: string | null;
   created_at: string;
   updated_at: string;
   student?: Profile;
