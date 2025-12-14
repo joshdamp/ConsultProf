@@ -40,10 +40,10 @@ export function ProfessorList() {
       ) : professors && professors.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {professors.map((prof) => (
-            <Card key={prof.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
+            <Card key={prof.id} className="hover:shadow-md transition-shadow flex flex-col">
+              <CardHeader className="flex-shrink-0">
                 <div className="flex items-start gap-4">
-                  <Avatar className="h-12 w-12">
+                  <Avatar className="h-12 w-12 flex-shrink-0">
                     <AvatarFallback className="bg-primary text-primary-foreground">
                       {prof.profile ? getInitials(prof.profile.full_name) : 'P'}
                     </AvatarFallback>
@@ -60,21 +60,23 @@ export function ProfessorList() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                {prof.office_location && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4 flex-shrink-0" />
-                    <span className="truncate">{prof.office_location}</span>
-                  </div>
-                )}
-                {prof.bio && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {prof.bio}
-                  </p>
-                )}
+              <CardContent className="space-y-3 flex-1 flex flex-col">
+                <div className="flex-1 space-y-3">
+                  {prof.department && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <User className="h-4 w-4 flex-shrink-0" />
+                      <span className="truncate">{prof.department}</span>
+                    </div>
+                  )}
+                  {prof.bio && (
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {prof.bio}
+                    </p>
+                  )}
+                </div>
                 <Button
                   onClick={() => navigate(`/student/professors/${prof.id}`)}
-                  className="w-full"
+                  className="w-full mt-auto"
                   size="sm"
                 >
                   <Calendar className="mr-2 h-4 w-4" />

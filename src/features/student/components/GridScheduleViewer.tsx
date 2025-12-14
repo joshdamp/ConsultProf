@@ -137,7 +137,6 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
       <p className="text-sm text-muted-foreground">
         * Click on <strong className="text-green-600">Consultation</strong> slots (green) to request a booking with this professor.
       </p>
-      </p>
     </div>
   );
 }
