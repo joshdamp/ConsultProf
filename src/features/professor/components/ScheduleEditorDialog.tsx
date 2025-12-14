@@ -131,13 +131,15 @@ export function ScheduleEditorDialog({ open, onOpenChange }: ScheduleEditorDialo
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="class">Class</SelectItem>
-                <SelectItem value="office_hour">Office Hour</SelectItem>
                 <SelectItem value="consultation">Consultation</SelectItem>
               </SelectContent>
             </Select>
             {errors.type && (
               <p className="text-sm text-destructive">{errors.type.message}</p>
             )}
+            <p className="text-xs text-muted-foreground">
+              Only <strong>Consultation</strong> slots can be booked by students
+            </p>
           </div>
 
           <div className="space-y-2">

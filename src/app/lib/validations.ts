@@ -38,7 +38,9 @@ export const scheduleSchema = z.object({
   weekday: z.number().min(1).max(5),
   start_time: z.string().min(1, 'Start time is required'),
   end_time: z.string().min(1, 'End time is required'),
-  type: z.enum(['class', 'office_hour', 'consultation']),
+  type: z.enum(['class', 'consultation'], {
+    required_error: 'Please select either Class or Consultation',
+  }),
   note: z.string().optional(),
   visible_to_students: z.boolean().default(true),
 });

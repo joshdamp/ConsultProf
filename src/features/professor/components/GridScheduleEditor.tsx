@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/ca
 import { Button } from '@/app/components/ui/button';
 import { Input } from '@/app/components/ui/input';
 import { Label } from '@/app/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/app/components/ui/select';
 import { TIME_SLOT_PAIRS, WEEKDAYS } from '@/app/lib/date-utils';
 import { useAddSchedule, useDeleteSchedule } from '../hooks/useProfessorSchedule';
 import { ProfessorSchedule } from '@/app/types/database';
@@ -16,6 +17,7 @@ interface GridScheduleEditorProps {
 export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
   const [selectedSlot, setSelectedSlot] = useState<{ weekday: number; slot: number } | null>(null);
   const [note, setNote] = useState('');
+  const [scheduleType, setScheduleType] = useState<'class' | 'consultation'>('class');
   
   const addSchedule = useAddSchedule();
   const deleteSchedule = useDeleteSchedule();
@@ -44,18 +46,19 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
         weekday: selectedSlot.weekday,
         start_time: slot.start,
         end_time: slot.end,
-        type: 'class', // Always 'class' - occupied time
+        type: scheduleType,
         note: note || null,
         visible_to_students: true,
       });
 
       toast({
-        title: 'Class schedule added',
-        description: 'Your class schedule has been marked. Students can book other available slots.',
+        title: `${scheduleType === 'class' ? 'Class' : 'Consultation'} schedule added`,
+        description: `Your ${scheduleType} schedule has been added successfully.`,
       });
 
       setSelectedSlot(null);
       setNote('');
+      setScheduleType('class');
     } catch (error) {
       toast({
         variant: 'destructive',
@@ -81,9 +84,12 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
     }
   };
 
-  const getScheduleColor = () => {
-    // Only classes are marked (occupied time)
-    return 'bg-red-100 text-red-800 border-red-300';
+  const getScheduleColor = (type: 'class' | 'consultation') => {
+    if (type === 'class') {
+      return 'bg-red-100 text-red-800 border-red-300';
+    } else {
+      return 'bg-green-100 text-green-800 border-green-300';
+    }
   };
 
   return (
@@ -92,18 +98,22 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
       <div className="flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-red-100 border border-red-300 rounded" />
-          <span>Class (Occupied)</span>
+          <span>Class (Busy)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-50 border border-green-200 rounded" />
-          <span>Available for Consultation</span>
+          <div className="w-4 h-4 bg-green-100 border border-green-300 rounded" />
+          <span>Consultation (Bookable)</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-gray-50 border border-gray-200 rounded" />
+          <span>Empty Slot</span>
         </div>
       </div>
 
       {/* Instruction */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <p className="text-sm text-blue-800">
-          <strong>Instructions:</strong> Mark your class times by clicking on the slots. All unmarked slots will automatically be available for students to book consultations.
+          <strong>Instructions:</strong> Click on empty slots to add either a <strong>Class</strong> (not bookable) or <strong>Consultation</strong> (students can book). Empty slots remain blank.
         </p>
       </div>
 
@@ -144,7 +154,7 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
                           onClick={() => !schedule && handleCellClick(weekdayIndex, slotIndex)}
                         >
                           {schedule ? (
-                            <div className={`relative p-2 rounded text-xs ${getScheduleColor()} border`}>
+                            <div className={`relative p-2 rounded text-xs ${getScheduleColor(schedule.type)} border`}>
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -154,14 +164,14 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
                               >
                                 <X className="w-3 h-3" />
                               </button>
-                              <div className="font-medium">CLASS</div>
+                              <div className="font-medium uppercase">{schedule.type}</div>
                               {schedule.note && (
                                 <div className="text-xs mt-1 truncate">{schedule.note}</div>
                               )}
                             </div>
                           ) : (
-                            <div className="h-16 flex items-center justify-center text-xs text-green-600 bg-green-50 rounded hover:bg-green-100 transition-colors">
-                              {isSelected ? '✓ Selected' : 'Available'}
+                            <div className="h-16 flex items-center justify-center text-xs text-gray-400 bg-white rounded">
+                              {isSelected ? '✓ Selected' : '—'}
                             </div>
                           )}
                         </td>
@@ -179,11 +189,24 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
       {selectedSlot && (
         <Card className="border-primary">
           <CardHeader>
-            <CardTitle className="text-lg">Mark Class Time for {WEEKDAYS[selectedSlot.weekday - 1]} at {TIME_SLOT_PAIRS[selectedSlot.slot].label}</CardTitle>
+            <CardTitle className="text-lg">Add Schedule for {WEEKDAYS[selectedSlot.weekday - 1]} at {TIME_SLOT_PAIRS[selectedSlot.slot].label}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label>Course Code / Room Number</Label>
+              <Label>Schedule Type</Label>
+              <Select value={scheduleType} onValueChange={(value: 'class' | 'consultation') => setScheduleType(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="class">Class (Not Bookable)</SelectItem>
+                  <SelectItem value="consultation">Consultation (Students Can Book)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Course Code / Room Number / Note (Optional)</Label>
               <Input
                 placeholder="e.g., CS200-2R / E314"
                 value={note}
@@ -193,9 +216,9 @@ export function GridScheduleEditor({ schedules }: GridScheduleEditorProps) {
 
             <div className="flex gap-2">
               <Button onClick={handleAddSchedule} disabled={addSchedule.isPending} className="flex-1">
-                {addSchedule.isPending ? 'Adding...' : 'Mark as Class Time'}
+                {addSchedule.isPending ? 'Adding...' : `Add ${scheduleType === 'class' ? 'Class' : 'Consultation'}`}
               </Button>
-              <Button variant="outline" onClick={() => setSelectedSlot(null)}>
+              <Button variant="outline" onClick={() => { setSelectedSlot(null); setScheduleType('class'); setNote(''); }}>
                 Cancel
               </Button>
             </div>

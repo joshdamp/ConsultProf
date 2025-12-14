@@ -25,14 +25,19 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
     scheduleMap.set(key, schedule);
   });
 
-  const getScheduleColor = () => {
-    // Classes are occupied (not bookable)
-    return 'bg-red-100 text-red-700 border-red-200';
+  const getScheduleColor = (schedule: ProfessorSchedule) => {
+    if (schedule.type === 'class') {
+      return 'bg-red-100 text-red-700 border-red-200';
+    } else if (schedule.type === 'consultation') {
+      return 'bg-green-100 text-green-700 border-green-200';
+    }
+    // office_hour or other types - treat as unavailable
+    return 'bg-gray-100 text-gray-600 border-gray-200';
   };
 
   const isSelectable = (schedule: ProfessorSchedule | undefined) => {
-    // Can book if slot is empty (no class)
-    return !schedule;
+    // Only consultation slots are bookable
+    return schedule?.type === 'consultation';
   };
 
   return (
@@ -40,16 +45,16 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-sm">
         <div className="flex items-center gap-2">
+          <div className="w-4 h-4 bg-green-100 border border-green-200 rounded" />
+          <span>Consultation (Available)</span>
+        </div>
+        <div className="flex items-center gap-2">
           <div className="w-4 h-4 bg-red-100 border border-red-200 rounded" />
-          <span>Class (Not Available)</span>
+          <span>Class (Busy)</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 bg-green-50 border border-green-200 rounded" />
-          <span>Available for Booking</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="text-lg">👆</span>
-          <span>Click green slots to book</span>
+          <div className="w-4 h-4 bg-gray-50 border border-gray-200 rounded" />
+          <span>Not Available</span>
         </div>
       </div>
 
@@ -96,29 +101,25 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
                             <div 
                               className={`
                                 p-2 rounded text-xs border transition-all
-                                ${getScheduleColor()}
-                                cursor-not-allowed
+                                ${getScheduleColor(schedule)}
+                                ${canSelect ? 'cursor-pointer hover:scale-105 hover:shadow-md' : 'cursor-not-allowed opacity-75'}
                               `}
                             >
-                              <div className="font-medium">CLASS</div>
+                              <div className="font-medium capitalize">{schedule.type}</div>
                               {schedule.note && (
                                 <div className="text-xs mt-1 truncate">{schedule.note}</div>
                               )}
-                              <div className="text-xs mt-1 opacity-70">Not available</div>
+                              {canSelect ? (
+                                <div className="text-xs mt-1">Click to book</div>
+                              ) : (
+                                <div className="text-xs mt-1 opacity-70">Not available</div>
+                              )}
                             </div>
                           ) : (
                             <div 
-                              className={`
-                                p-2 rounded text-xs border h-16 flex flex-col items-center justify-center transition-all
-                                ${isSelected 
-                                  ? 'bg-green-200 border-green-400 ring-2 ring-green-500 shadow-md scale-105' 
-                                  : 'bg-green-50 border-green-200 hover:bg-green-100'
-                                }
-                                cursor-pointer
-                              `}
+                              className="p-2 rounded text-xs border h-16 flex items-center justify-center bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
                             >
-                              <div className="font-medium text-green-700">AVAILABLE</div>
-                              <div className="text-xs text-green-600 mt-1">Click to book</div>
+                              —
                             </div>
                           )}
                         </td>
@@ -134,7 +135,8 @@ export function GridScheduleViewer({ schedules, onSlotSelect, selectedSlot }: Gr
 
       {/* Instructions */}
       <p className="text-sm text-muted-foreground">
-        * Click on any available slot (green) to request a consultation with this professor.
+        * Click on <strong className="text-green-600">Consultation</strong> slots (green) to request a booking with this professor.
+      </p>
       </p>
     </div>
   );

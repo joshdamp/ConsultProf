@@ -21,7 +21,7 @@ export interface Professor {
   profile?: Profile;
 }
 
-export type ScheduleType = 'class' | 'office_hour' | 'consultation';
+export type ScheduleType = 'class' | 'consultation';
 
 export interface ProfessorSchedule {
   id: string;
