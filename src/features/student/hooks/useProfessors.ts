@@ -8,21 +8,14 @@ export function useProfessors(searchTerm?: string) {
   return useQuery<ProfessorWithProfile[]>({
     queryKey: ['professors', searchTerm],
     queryFn: async (): Promise<ProfessorWithProfile[]> => {
-      // First get professors
-      let query = supabase
+      // Get all professors
+      const { data: professors, error: profError } = await supabase
         .from('professors')
         .select('*');
 
-      if (searchTerm) {
-        query = query.or(`
-          department.ilike.%${searchTerm}%
-        `);
-      }
-
-      const { data: professors, error: profError } = await query;
       if (profError) throw profError;
 
-      // Then get their profiles
+      // Get all profiles for professors
       const professorIds = (professors || []).map((p: any) => p.id);
       if (professorIds.length === 0) return [];
 
@@ -40,15 +33,17 @@ export function useProfessors(searchTerm?: string) {
       });
 
       // Filter by search term if provided
-      if (searchTerm) {
-        return result.filter(p => 
-          p.profile?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          p.department?.toLowerCase().includes(searchTerm.toLowerCase())
+      let filtered = result;
+      if (searchTerm && searchTerm.trim()) {
+        const term = searchTerm.toLowerCase().trim();
+        filtered = result.filter(p => 
+          p.profile?.full_name?.toLowerCase().includes(term) ||
+          p.department?.toLowerCase().includes(term)
         );
       }
 
       // Sort by full name
-      return result.sort((a, b) => 
+      return filtered.sort((a, b) => 
         (a.profile?.full_name || '').localeCompare(b.profile?.full_name || '')
       );
     },
