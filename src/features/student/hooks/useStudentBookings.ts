@@ -39,6 +39,8 @@ export function useStudentBookings() {
       })) as BookingWithProfessor[];
     },
     enabled: !!profile?.id,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -73,6 +75,7 @@ export function useCreateBooking() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['student-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['professor-requests'] });
       toast({
         title: 'Request sent!',
         description: 'Your consultation request has been sent to the professor.',

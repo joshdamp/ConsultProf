@@ -27,6 +27,8 @@ export function useProfessorRequests() {
       return data as BookingWithStudent[];
     },
     enabled: !!profile?.id,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -55,6 +57,7 @@ export function useUpdateBookingStatus() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['professor-requests'] });
       queryClient.invalidateQueries({ queryKey: ['professor-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['student-bookings'] });
       
       const statusText = variables.status === 'confirmed' ? 'confirmed' : 'declined';
       toast({
@@ -93,5 +96,7 @@ export function useProfessorBookings() {
       return data as BookingWithStudent[];
     },
     enabled: !!profile?.id,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 }
